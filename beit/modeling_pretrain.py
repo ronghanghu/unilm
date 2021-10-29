@@ -163,3 +163,24 @@ def beit_large_patch16_224_8k_vocab(pretrained=False, **kwargs):
         )
         model.load_state_dict(checkpoint["model"])
     return model
+
+
+@register_model
+def vit_base_patch16_224_8k_vocab(pretrained=False, **kwargs):
+    from modeling_vit import OriginalVitForMaskedImageModeling
+
+    _ = kwargs.pop("num_classes", None)
+    _ = kwargs.pop("use_shared_rel_pos_bias", None)
+    _ = kwargs.pop("use_abs_pos_emb", None)
+    _ = kwargs.pop("init_values", None)
+
+    model = OriginalVitForMaskedImageModeling(
+        patch_size=16, embed_dim=768, depth=12, num_heads=12, mlp_ratio=4, qkv_bias=True,
+        norm_layer=partial(nn.LayerNorm, eps=1e-6), vocab_size=8192, **kwargs)
+    model.default_cfg = _cfg()
+    if pretrained:
+        checkpoint = torch.load(
+            kwargs["init_ckpt"], map_location="cpu"
+        )
+        model.load_state_dict(checkpoint["model"])
+    return model
